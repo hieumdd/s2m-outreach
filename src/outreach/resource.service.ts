@@ -16,7 +16,7 @@ export type GetResourcesOptions = {
 
 type GetResourcesResponse = {
     data: any[];
-    links: { next?: string };
+    links?: { next?: string };
 };
 
 export const getResources = async (config: GetResourcesConfig, options: GetResourcesOptions) => {
@@ -38,9 +38,9 @@ export const getResources = async (config: GetResourcesConfig, options: GetResou
                 },
             })
             .then((response) => response.data)
-            .then(({ data, links: { next } }) => {
+            .then(({ data, links }) => {
                 data.forEach((row) => stream.push(row));
-                next ? _get(offset + count) : stream.push(null);
+                links?.next ? _get(offset + count) : stream.push(null);
             })
             .catch((error) => {
                 if (axios.isAxiosError(error)) {
