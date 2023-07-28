@@ -157,6 +157,64 @@ export const Call: Pipeline = {
     },
 };
 
+export const Opportunity: Pipeline = {
+    getConfig: {
+        url: '/opportunities',
+        params: () => ({}),
+    },
+    schema: Joi.object({
+        id: Joi.number(),
+        attributes: Joi.object({
+            amount: Joi.number(),
+            closeDate: timestampSchema,
+            createdAt: timestampSchema,
+            currencyType: Joi.string(),
+            description: Joi.string(),
+            externalCreatedAt: timestampSchema,
+            mapLink: Joi.string(),
+            mapNextSteps: Joi.string(),
+            mapStatus: Joi.string(),
+            name: Joi.string(),
+            nextStep: Joi.string(),
+            opportunityType: Joi.string(),
+            probability: Joi.number(),
+            prospectingRepId: Joi.string(),
+            sharingTeamId: Joi.string(),
+            touchedAt: timestampSchema,
+            updatedAt: timestampSchema,
+        }),
+    }),
+    loadConfig: {
+        table: 'Opportunity',
+        schema: [
+            { name: 'id', type: 'NUMERIC' },
+            {
+                name: 'attributes',
+                type: 'RECORD',
+                fields: [
+                    { name: 'amount', type: 'NUMERIC' },
+                    { name: 'closeDate', type: 'TIMESTAMP' },
+                    { name: 'createdAt', type: 'TIMESTAMP' },
+                    { name: 'currencyType', type: 'STRING' },
+                    { name: 'description', type: 'STRING' },
+                    { name: 'externalCreatedAt', type: 'TIMESTAMP' },
+                    { name: 'mapLink', type: 'STRING' },
+                    { name: 'mapNextSteps', type: 'STRING' },
+                    { name: 'mapStatus', type: 'STRING' },
+                    { name: 'name', type: 'STRING' },
+                    { name: 'nextStep', type: 'STRING' },
+                    { name: 'opportunityType', type: 'STRING' },
+                    { name: 'probability', type: 'NUMERIC' },
+                    { name: 'prospectingRepId', type: 'STRING' },
+                    { name: 'sharingTeamId', type: 'STRING' },
+                    { name: 'touchedAt', type: 'TIMESTAMP' },
+                    { name: 'updatedAt', type: 'TIMESTAMP' },
+                ],
+            },
+        ],
+    },
+};
+
 export const Prospect: Pipeline = {
     getConfig: {
         url: '/prospects',
