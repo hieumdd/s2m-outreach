@@ -436,7 +436,7 @@ export const Sequence: Pipeline = {
         }),
     }),
     loadConfig: {
-        table: 'Prospect',
+        table: 'Sequence',
         schema: [
             { name: 'id', type: 'NUMERIC' },
             {
