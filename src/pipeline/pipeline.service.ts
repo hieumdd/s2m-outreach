@@ -3,9 +3,10 @@ import { pipeline } from 'node:stream/promises';
 import Joi from 'joi';
 import ndjson from 'ndjson';
 
+import { logger } from '../logging.service';
 import { createLoadStream } from '../bigquery.service';
-import { Pipeline } from './pipeline.const';
 import { GetResourcesOptions, getResources } from '../outreach/resource.service';
+import { Pipeline } from './pipeline.const';
 
 const transformValidation = (schema: Joi.Schema) => {
     return new Transform({
@@ -27,6 +28,8 @@ const transformValidation = (schema: Joi.Schema) => {
 export type RunPipelineOptions = GetResourcesOptions;
 
 export const runPipeline = async (pipeline_: Pipeline, options: RunPipelineOptions) => {
+    logger.info({ action: 'start', pipeline: pipeline_.loadConfig.table });
+
     const stream = await getResources(pipeline_.getConfig, options);
 
     return pipeline(
