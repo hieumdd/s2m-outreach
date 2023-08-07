@@ -495,6 +495,14 @@ export const SequenceState: Pipeline = {
     },
     schema: Joi.object({
         id: Joi.number(),
+        relationships: Joi.object({
+            sequence: Joi.object({
+                data: Joi.object({
+                    id: Joi.number(),
+                    type: Joi.string(),
+                }),
+            }),
+        }),
         attributes: Joi.object({
             activeAt: timestampSchema,
             bounceCount: Joi.number(),
@@ -522,6 +530,26 @@ export const SequenceState: Pipeline = {
         table: 'SequenceState',
         schema: [
             { name: 'id', type: 'NUMERIC' },
+            {
+                name: 'relationships',
+                type: 'RECORD',
+                fields: [
+                    {
+                        name: 'sequence',
+                        type: 'RECORD',
+                        fields: [
+                            {
+                                name: 'data',
+                                type: 'RECORD',
+                                fields: [
+                                    { name: 'id', type: 'NUMERIC' },
+                                    { name: 'type', type: 'STRING' },
+                                ],
+                            },
+                        ],
+                    },
+                ],
+            },
             {
                 name: 'attributes',
                 type: 'RECORD',
