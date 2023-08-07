@@ -1,22 +1,18 @@
 import JoiDefault, { NumberSchema, Schema } from 'joi';
 import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc';
-
-dayjs.extend(utc);
 
 import { GetResourcesConfig } from '../outreach/resource.service';
 import { CreateLoadStreamOptions } from '../bigquery.service';
 
 const Joi = JoiDefault.defaults((schema) => {
-    switch (schema.type) {
-        case 'number':
-            return (schema as NumberSchema)
-                .allow(null)
-                .unsafe()
-                .custom((value) => (value ? (value as number).toFixed(6) : null));
-        default:
-            return schema.allow(null);
+    if (schema.type === 'number') {
+        return (schema as NumberSchema)
+            .allow(null)
+            .unsafe()
+            .custom((value) => (value ? (value as number).toFixed(6) : null));
     }
+
+    return schema.allow(null);
 });
 
 const timestampSchema = Joi.string().custom((value) => {
