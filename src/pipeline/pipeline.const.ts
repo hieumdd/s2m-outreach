@@ -214,6 +214,42 @@ export const Opportunity: Pipeline = {
     },
 };
 
+export const OpportunityStage: Pipeline = {
+    getConfig: {
+        url: '/opportunityStages',
+        params: () => ({}),
+    },
+    schema: Joi.object({
+        id: Joi.number(),
+        attributes: Joi.object({
+            color: Joi.string(),
+            createdAt: timestampSchema,
+            isClosed: Joi.boolean(),
+            name: Joi.string(),
+            order: Joi.number(),
+            updatedAt: timestampSchema,
+        }),
+    }),
+    loadConfig: {
+        table: 'OpportunityStage',
+        schema: [
+            { name: 'id', type: 'NUMERIC' },
+            {
+                name: 'attributes',
+                type: 'RECORD',
+                fields: [
+                    { name: 'color', type: 'STRING' },
+                    { name: 'createdAt', type: 'TIMESTAMP' },
+                    { name: 'isClosed', type: 'BOOLEAN' },
+                    { name: 'name', type: 'STRING' },
+                    { name: 'order', type: 'NUMERIC' },
+                    { name: 'updatedAt', type: 'TIMESTAMP' },
+                ],
+            },
+        ],
+    },
+};
+
 export const Prospect: Pipeline = {
     getConfig: {
         url: '/prospects',
