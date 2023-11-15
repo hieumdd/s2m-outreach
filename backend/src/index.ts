@@ -1,49 +1,69 @@
 import express from 'express';
-import { http } from '@google-cloud/functions-framework';
 
 import { logger } from './logging.service';
+import { getAuthorizationURL } from './outreach/auth/auth.service';
+import { createUser } from './outreach/user/user.service';
 import { RunPipelinesSchema, RunPipelineSchema } from './pipeline/pipeline.request.dto';
 import * as pipelines from './pipeline/pipeline.const';
 import { createPipelineTasks, runPipeline } from './pipeline/pipeline.service';
 
 const app = express();
 
-app.post('/task', ({ body }, res) => {
-    const { value, error } = RunPipelinesSchema.validate(body);
+app.use(({ headers, path, body }, _, next) => {
+    logger.info({ headers, path, body });
+    next();
+});
 
-    if (error) {
-        logger.error({ body, error });
-        res.status(400).json({ error });
-        return;
-    }
-
-    createPipelineTasks(value)
-        .then((result) => {
-            res.status(200).json({ result });
-        })
+app.get('/authorize/callback', ({ query }, res) => {
+    createUser(<string>query.code)
+        .then((user) => res.status(200).json({ user }))
         .catch((error) => {
-            logger.error({ error });
-            res.status(500).json({ error });
+            console.log(error);
+            // logger.error({ error });
+            res.status(500).json({ error: error.response });
         });
 });
 
-app.post('/', ({ body }, res) => {
-    const { value, error } = RunPipelineSchema.validate(body);
-
-    if (error) {
-        logger.error({ body, error });
-        res.status(400).json({ error });
-        return;
-    }
-
-    runPipeline(pipelines[value.pipeline], value)
-        .then((result) => {
-            res.status(200).json({ result });
-        })
-        .catch((error) => {
-            logger.error({ error });
-            res.status(500).json({ error });
-        });
+app.get('/authorize', (_, res) => {
+    res.redirect(getAuthorizationURL());
 });
 
-http('main', app);
+// app.post('/task', ({ body }, res) => {
+//     const { value, error } = RunPipelinesSchema.validate(body);
+
+//     if (error) {
+//         logger.error({ body, error });
+//         res.status(400).json({ error });
+//         return;
+//     }
+
+//     createPipelineTasks(value)
+//         .then((result) => {
+//             res.status(200).json({ result });
+//         })
+//         .catch((error) => {
+//             logger.error({ error });
+//             res.status(500).json({ error });
+//         });
+// });
+
+// app.post('/', ({ body }, res) => {
+//     const { value, error } = RunPipelineSchema.validate(body);
+
+//     if (error) {
+//         logger.error({ body, error });
+//         res.status(400).json({ error });
+//         return;
+//     }
+
+//     runPipeline(pipelines[value.pipeline], value)
+//         .then((result) => {
+//             res.status(200).json({ result });
+//         })
+//         .catch((error) => {
+//             logger.error({ error });
+//             res.status(500).json({ error });
+//         });
+// });
+
+app.listen('8080');

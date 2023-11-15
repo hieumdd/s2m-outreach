@@ -6,7 +6,7 @@ import ndjson from 'ndjson';
 import { logger } from '../logging.service';
 import { createLoadStream } from '../bigquery.service';
 import { createTasks } from '../cloud-tasks.service';
-import { GetResourcesOptions, getResources } from '../outreach/resource.service';
+import { GetResourcesOptions, getResources } from '../outreach/resource/resource.service';
 import * as pipelines from './pipeline.const';
 
 const transformValidation = (schema: Joi.Schema) => {
