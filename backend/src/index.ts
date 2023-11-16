@@ -35,7 +35,7 @@ app.get('/user', (_, res) => {
         .then((users) => res.render('user.html', { users: JSON.stringify(users, null, 2) }))
         .catch((error) => {
             logger.error({ error });
-            res.status(500).json({ error: error.response });
+            res.status(500).json({ error: error });
         });
 });
 
