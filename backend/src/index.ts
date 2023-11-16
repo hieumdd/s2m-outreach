@@ -6,7 +6,6 @@ import { logger } from './logging.service';
 import { getAuthorizationURL } from './outreach/auth/auth.service';
 import { createUser, getUsers } from './outreach/user/user.service';
 import { CreatePipelineTasksSchema, RunPipelineSchema } from './pipeline/pipeline.request.dto';
-import * as pipelines from './pipeline/pipeline.const';
 import { createPipelineTasks, runPipeline } from './pipeline/pipeline.service';
 
 ['SIGINT', 'SIGTERM', 'SIGQUIT'].forEach((signal) =>
@@ -50,45 +49,56 @@ program.command('server').action(() => {
             });
     });
 
+    app.post('/task', ({ body }, res) => {
+        const { value, error } = CreatePipelineTasksSchema.validate(body);
+
+        if (error) {
+            logger.error({ body, error });
+            res.status(400).json({ error });
+            return;
+        }
+
+        createPipelineTasks(value)
+            .then((result) => {
+                res.status(200).json({ result });
+            })
+            .catch((error) => {
+                logger.error({ error });
+                res.status(500).json({ error });
+            });
+    });
+
     app.listen('8080');
 });
 
+program
+    .command('execute')
+    .requiredOption('--userId <userId>')
+    .requiredOption('--pipelineName <pipelineName>')
+    .option('--start <start>')
+    .option('--end <end>')
+    .action((args) => {
+        console.log(args);
+        RunPipelineSchema.validateAsync({
+            userId: args.userId,
+            pipelineName: args.pipelineName,
+            options: { start: args.start, end: args.end },
+        })
+            .then((request) => {
+                runPipeline(request)
+                    .then(() => {
+                        logger.info({ action: 'done', request });
+                        process.exit(0);
+                    })
+                    .catch((error) => {
+                        logger.error({ error });
+                        process.exit(1);
+                    });
+            })
+            .catch((error) => {
+                logger.warn({ error });
+                process.exit(1);
+            });
+    });
+
 program.parse();
-
-// app.post('/task', ({ body }, res) => {
-//     const { value, error } = RunPipelinesSchema.validate(body);
-
-//     if (error) {
-//         logger.error({ body, error });
-//         res.status(400).json({ error });
-//         return;
-//     }
-
-//     createPipelineTasks(value)
-//         .then((result) => {
-//             res.status(200).json({ result });
-//         })
-//         .catch((error) => {
-//             logger.error({ error });
-//             res.status(500).json({ error });
-//         });
-// });
-
-// app.post('/', ({ body }, res) => {
-//     const { value, error } = RunPipelineSchema.validate(body);
-
-//     if (error) {
-//         logger.error({ body, error });
-//         res.status(400).json({ error });
-//         return;
-//     }
-
-//     runPipeline(pipelines[value.pipeline], value)
-//         .then((result) => {
-//             res.status(200).json({ result });
-//         })
-//         .catch((error) => {
-//             logger.error({ error });
-//             res.status(500).json({ error });
-//         });
-// });
