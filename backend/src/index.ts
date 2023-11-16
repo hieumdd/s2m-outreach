@@ -1,5 +1,6 @@
 import express from 'express';
 import nunjucks from 'nunjucks';
+import { Command } from 'commander';
 
 import { logger } from './logging.service';
 import { getAuthorizationURL } from './outreach/auth/auth.service';
@@ -8,36 +9,51 @@ import { CreatePipelineTasksSchema, RunPipelineSchema } from './pipeline/pipelin
 import * as pipelines from './pipeline/pipeline.const';
 import { createPipelineTasks, runPipeline } from './pipeline/pipeline.service';
 
-const app = express();
-nunjucks.configure('views', { autoescape: true, express: app });
-app.set('view engine', 'html');
+['SIGINT', 'SIGTERM', 'SIGQUIT'].forEach((signal) =>
+    process.on(signal, () => {
+        logger.debug({ action: 'interrupt' });
+        process.exit();
+    }),
+);
 
-app.use(({ headers, path, body }, _, next) => {
-    logger.info({ headers, path, body });
-    next();
+const program = new Command();
+
+program.command('server').action(() => {
+    const app = express();
+    nunjucks.configure('views', { autoescape: true, express: app });
+    app.set('view engine', 'html');
+
+    app.use(({ headers, path, body }, _, next) => {
+        logger.info({ headers, path, body });
+        next();
+    });
+
+    app.get('/authorize/callback', ({ query }, res) => {
+        createUser(<string>query.code)
+            .then((user) => res.status(200).json({ user }))
+            .catch((error) => {
+                logger.error({ error });
+                res.status(500).json({ error });
+            });
+    });
+
+    app.get('/authorize', (_, res) => {
+        res.redirect(getAuthorizationURL());
+    });
+
+    app.get('/user', (_, res) => {
+        getUsers()
+            .then((users) => res.render('user.html', { users: JSON.stringify(users, null, 2) }))
+            .catch((error) => {
+                logger.error({ error });
+                res.status(500).json({ error: error });
+            });
+    });
+
+    app.listen('8080');
 });
 
-app.get('/authorize/callback', ({ query }, res) => {
-    createUser(<string>query.code)
-        .then((user) => res.status(200).json({ user }))
-        .catch((error) => {
-            logger.error({ error });
-            res.status(500).json({ error });
-        });
-});
-
-app.get('/authorize', (_, res) => {
-    res.redirect(getAuthorizationURL());
-});
-
-app.get('/user', (_, res) => {
-    getUsers()
-        .then((users) => res.render('user.html', { users: JSON.stringify(users, null, 2) }))
-        .catch((error) => {
-            logger.error({ error });
-            res.status(500).json({ error: error });
-        });
-});
+program.parse();
 
 // app.post('/task', ({ body }, res) => {
 //     const { value, error } = RunPipelinesSchema.validate(body);
@@ -76,5 +92,3 @@ app.get('/user', (_, res) => {
 //             res.status(500).json({ error });
 //         });
 // });
-
-app.listen('8080');
