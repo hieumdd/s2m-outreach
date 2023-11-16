@@ -50,21 +50,18 @@ program.command('server').action(() => {
     });
 
     app.post('/task', ({ body }, res) => {
-        const { value, error } = CreatePipelineTasksSchema.validate(body);
-
-        if (error) {
-            logger.error({ body, error });
-            res.status(400).json({ error });
-            return;
-        }
-
-        createPipelineTasks(value)
-            .then((result) => {
-                res.status(200).json({ result });
+        CreatePipelineTasksSchema.validateAsync(body)
+            .then((value) => {
+                createPipelineTasks(value)
+                    .then((result) => res.status(200).json({ result }))
+                    .catch((error) => {
+                        logger.error({ error });
+                        res.status(500).json({ error });
+                    });
             })
             .catch((error) => {
-                logger.error({ error });
-                res.status(500).json({ error });
+                logger.error({ body, error });
+                res.status(400).json({ error });
             });
     });
 
