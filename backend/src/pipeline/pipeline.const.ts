@@ -23,7 +23,7 @@ const timestampSchema = Joi.string().custom((value) => {
 export type Pipeline = {
     getConfig: GetResourcesConfig;
     schema: Schema;
-    loadConfig: CreateLoadStreamOptions;
+    loadConfig: Omit<CreateLoadStreamOptions, 'dataset'>;
 };
 
 export const Account: Pipeline = {

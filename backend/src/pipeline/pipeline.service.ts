@@ -8,36 +8,40 @@ import { createLoadStream } from '../bigquery.service';
 import { createTasks } from '../cloud-tasks.service';
 import { GetResourcesOptions, getResources } from '../outreach/resource/resource.service';
 import * as pipelines from './pipeline.const';
+import { getUser } from '../outreach/user/user.service';
+import { getClient } from '../outreach/auth/auth.service';
 
 const transformValidation = (schema: Joi.Schema) => {
     return new Transform({
         objectMode: true,
         transform: (row: any, _, callback) => {
-            const { value, error } = schema.validate(row, {
-                stripUnknown: true,
-                abortEarly: false,
-            });
-            if (error) {
-                callback(error);
-                return;
-            }
-            callback(null, value);
+            schema
+                .validateAsync(row, { stripUnknown: true, abortEarly: false })
+                .then((value) => callback(null, value))
+                .catch((error) => callback(error));
         },
     });
 };
 
-export type RunPipelineOptions = GetResourcesOptions;
+export type RunPipelineOptions = {
+    userId: string;
+    pipelineName: keyof typeof pipelines;
+    options: GetResourcesOptions;
+};
+export const runPipeline = async ({ userId, pipelineName, options }: RunPipelineOptions) => {
+    const pipeline_ = pipelines[pipelineName];
 
-export const runPipeline = async (pipeline_: pipelines.Pipeline, options: RunPipelineOptions) => {
     logger.info({ action: 'start', pipeline: pipeline_.loadConfig.table });
 
-    const stream = await getResources(pipeline_.getConfig, options);
+    const user = await getUser(userId);
+    const client = getClient(user.token.access_token);
 
     return pipeline(
-        stream,
+        getResources(client, pipeline_.getConfig, options),
         transformValidation(pipeline_.schema),
         ndjson.stringify(),
-        createLoadStream({
+        await createLoadStream({
+            dataset: user.dataset,
             table: `p_${pipeline_.loadConfig.table}`,
             schema: pipeline_.loadConfig.schema,
         }),

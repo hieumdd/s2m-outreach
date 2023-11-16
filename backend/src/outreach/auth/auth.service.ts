@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { Timestamp } from '@google-cloud/firestore';
-import { AuthorizationCode } from 'simple-oauth2';
+import { AccessToken, AuthorizationCode } from 'simple-oauth2';
+
 import { Token } from './token.type';
 
 const client = new AuthorizationCode({
@@ -15,7 +16,6 @@ const client = new AuthorizationCode({
         tokenPath: 'oauth/token',
     },
     options: { credentialsEncodingMode: 'loose' },
-    // http: { json: 'force' },
 });
 
 const redirectURI = `${process.env.PUBLIC_URL}/authorize/callback`;
@@ -76,14 +76,12 @@ export const exchangeCodeForToken = async (code: string) => {
     return token as Token;
 };
 
-export const getToken = async (token: any) => {
-    const existingToken = client.createToken({
-        ...token,
-        expires_at: (<Timestamp>token.expires_at).toDate(),
-    });
+export const ensureToken = async (token: Token, callback: (token: Token) => Promise<any>) => {
+    const existingToken = client.createToken({ ...token, expires_at: token.expires_at.toDate() });
 
-    if (existingToken.expired(300_000)) {
+    if (existingToken.expired()) {
         const newToken = await existingToken.refresh();
+        callback(<Token>newToken.token);
         return newToken;
     }
 

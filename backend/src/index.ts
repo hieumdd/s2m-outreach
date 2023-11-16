@@ -4,7 +4,7 @@ import nunjucks from 'nunjucks';
 import { logger } from './logging.service';
 import { getAuthorizationURL } from './outreach/auth/auth.service';
 import { createUser, getUsers } from './outreach/user/user.service';
-import { RunPipelinesSchema, RunPipelineSchema } from './pipeline/pipeline.request.dto';
+import { CreatePipelineTasksSchema, RunPipelineSchema } from './pipeline/pipeline.request.dto';
 import * as pipelines from './pipeline/pipeline.const';
 import { createPipelineTasks, runPipeline } from './pipeline/pipeline.service';
 
