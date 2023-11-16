@@ -8,9 +8,7 @@ import { User } from './user.type';
 
 export const createUser = async (code: string) => {
     const token = await exchangeCodeForToken(code);
-    console.log({ token });
     const me = await getMe(getClient(<string>token.access_token));
-    console.log({ me });
 
     const user: User = {
         id: me.data.id,
@@ -23,4 +21,12 @@ export const createUser = async (code: string) => {
     UserRepository.doc(me.data.id).set(user);
 
     return user;
+};
+
+export const getUsers = async (withToken = false) => {
+    return await UserRepository.get().then((querySnapshot) => {
+        return querySnapshot.docs
+            .map((doc) => doc.data())
+            .map((data) => ({ ...data, token: withToken ? data.token : undefined }));
+    });
 };

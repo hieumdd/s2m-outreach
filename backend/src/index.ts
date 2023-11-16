@@ -1,13 +1,16 @@
 import express from 'express';
+import nunjucks from 'nunjucks';
 
 import { logger } from './logging.service';
 import { getAuthorizationURL } from './outreach/auth/auth.service';
-import { createUser } from './outreach/user/user.service';
+import { createUser, getUsers } from './outreach/user/user.service';
 import { RunPipelinesSchema, RunPipelineSchema } from './pipeline/pipeline.request.dto';
 import * as pipelines from './pipeline/pipeline.const';
 import { createPipelineTasks, runPipeline } from './pipeline/pipeline.service';
 
 const app = express();
+nunjucks.configure('views', { autoescape: true, express: app });
+app.set('view engine', 'html');
 
 app.use(({ headers, path, body }, _, next) => {
     logger.info({ headers, path, body });
@@ -18,14 +21,22 @@ app.get('/authorize/callback', ({ query }, res) => {
     createUser(<string>query.code)
         .then((user) => res.status(200).json({ user }))
         .catch((error) => {
-            console.log(error);
-            // logger.error({ error });
-            res.status(500).json({ error: error.response });
+            logger.error({ error });
+            res.status(500).json({ error });
         });
 });
 
 app.get('/authorize', (_, res) => {
     res.redirect(getAuthorizationURL());
+});
+
+app.get('/user', (_, res) => {
+    getUsers()
+        .then((users) => res.render('user.html', { users: JSON.stringify(users, null, 2) }))
+        .catch((error) => {
+            logger.error({ error });
+            res.status(500).json({ error: error.response });
+        });
 });
 
 // app.post('/task', ({ body }, res) => {
