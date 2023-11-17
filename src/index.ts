@@ -71,13 +71,11 @@ program.command('server').action(() => {
 program
     .command('execute')
     .requiredOption('--userId <userId>')
-    .requiredOption('--pipelineName <pipelineName>')
     .option('--start <start>')
     .option('--end <end>')
     .action((args) => {
         RunPipelineSchema.validateAsync({
             userId: args.userId,
-            pipelineName: args.pipelineName,
             options: { start: args.start, end: args.end },
         })
             .then((request) => {

@@ -25,11 +25,10 @@ const transformValidation = (schema: Joi.Schema) => {
 
 export type RunPipelineOptions = {
     userId: string;
-    pipelineName: keyof typeof pipelines;
     options: GetResourcesOptions;
 };
-export const runPipeline = async ({ userId, pipelineName, options }: RunPipelineOptions) => {
-    const pipeline_ = pipelines[pipelineName];
+export const runPipeline = async ({ userId, options }: RunPipelineOptions) => {
+    const pipeline_ = Object.values(pipelines)[parseInt(process.env.CLOUD_RUN_TASK_INDEX || '0')];
 
     logger.info({ action: 'start', pipeline: pipeline_.loadConfig.table });
 
