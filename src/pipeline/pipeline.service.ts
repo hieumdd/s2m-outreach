@@ -5,10 +5,10 @@ import ndjson from 'ndjson';
 
 import { logger } from '../logging.service';
 import { createLoadStream } from '../bigquery.service';
-import { createTasks } from '../cloud-tasks.service';
+import { executeJob } from '../cloud-run.service';
 import { GetResourcesOptions, getResources } from '../outreach/resource/resource.service';
 import * as pipelines from './pipeline.const';
-import { getUser } from '../outreach/user/user.service';
+import { getUser, getUsers } from '../outreach/user/user.service';
 import { getClient } from '../outreach/auth/auth.service';
 
 const transformValidation = (schema: Joi.Schema) => {
@@ -50,8 +50,14 @@ export const runPipeline = async ({ userId, options }: RunPipelineOptions) => {
 export type CreatePipelineTasksOptions = GetResourcesOptions;
 
 export const createPipelineTasks = async ({ start, end }: CreatePipelineTasksOptions) => {
-    return createTasks(
-        Object.keys(pipelines).map((pipeline_) => ({ pipeline: pipeline_, start, end })),
-        (task) => task.pipeline,
+    const users = await getUsers();
+
+    return await Promise.all(
+        users.map((user) => {
+            return executeJob(
+                ['--userId', user.id, '--start', start, '--end', end],
+                Object.values(pipelines).length,
+            );
+        }),
     );
 };

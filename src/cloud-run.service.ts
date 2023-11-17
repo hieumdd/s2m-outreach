@@ -2,9 +2,9 @@ import { JobsClient } from '@google-cloud/run';
 
 const client = new JobsClient();
 
-export const runJob = async (args: string[]) => {
+export const executeJob = async (args: string[], taskCount: number) => {
     return client.runJob({
         name: `s2m-outreach-executor`,
-        overrides: { containerOverrides: [{ args }] },
+        overrides: { containerOverrides: [{ args }], taskCount },
     });
 };

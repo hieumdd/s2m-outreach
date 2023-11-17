@@ -26,7 +26,7 @@ export const createUser = async (code: string) => {
 export const getUsers = async () => {
     return await UserRepository.get().then((querySnapshot) => {
         return querySnapshot.docs
-            .map((doc) => doc.data())
+            .map((doc) => <User>doc.data())
             .map((data) => ({ ...data, token: undefined }));
     });
 };

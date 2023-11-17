@@ -1,4 +1,4 @@
-import { runPipeline } from './pipeline.service';
+import { createPipelineTasks, runPipeline } from './pipeline.service';
 
 it('run-pipeline', async () => {
     return runPipeline({
@@ -16,3 +16,12 @@ it('run-pipeline', async () => {
             throw error;
         });
 }, 100_000_000);
+
+it('create-pipeline-tasks', async () => {
+    return createPipelineTasks({ start: '', end: '' })
+        .then((result) => expect(result).toBeDefined())
+        .catch((error) => {
+            console.error({ error });
+            throw error;
+        });
+});
