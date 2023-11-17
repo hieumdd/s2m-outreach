@@ -1,0 +1,15 @@
+version: '3'
+
+services:
+    app:
+        image: us-docker.pkg.dev/nutshell-394011/docker-1/s2m-outreach:feat-multi
+        build:
+            context: .
+        volumes:
+            - ./service-account.json:/service-account.json
+        environment:
+            GOOGLE_APPLICATION_CREDENTIALS: /service-account.json
+        env_file:
+            - .env
+        ports:
+            - 8080:8080
