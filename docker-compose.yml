@@ -1,10 +1,10 @@
-version: '3'
+version: '3.8'
 
 services:
     app:
-        image: us-docker.pkg.dev/nutshell-394011/docker-1/s2m-outreach:feat-multi
-        build:
-            context: .
+        image: us-docker.pkg.dev/nutshell-394011/docker-1/s2m-outreach:master
+        build: .
+        container_name: s2m-outreach
         volumes:
             - ./service-account.json:/service-account.json
         environment:
