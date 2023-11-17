@@ -9,7 +9,6 @@ concurrency: ${{ github.ref }}-${{ github.workflow }}
 env:
   GCP_SA: integration-1@nutshell-394011.iam.gserviceaccount.com
   IMAGE: us-docker.pkg.dev/nutshell-394011/docker-1/s2m-outreach:master
-  SERVICE_NAME: suiteanalytics-connect-controller-${{ github.ref_name }}
 
 jobs:
   build-image:
@@ -36,22 +35,23 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - run: echo "PUBLIC_URL=$(gcloud run services describe s2m-outreach-server --format='value(status.url)')" >> $GITHUB_ENV
-
       - uses: google-github-actions/auth@v0
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
 
       - uses: google-github-actions/setup-gcloud@v0
 
+      - run: echo "PUBLIC_URL=$(gcloud run services describe s2m-outreach-server --format='value(status.url)')" >> $GITHUB_ENV
+
       - uses: google-github-actions/deploy-cloudrun@v1
         with:
-          service: ${{ env.SERVICE_NAME }}
+          service: s2m-outreach-server
           image: ${{ env.IMAGE }}
           timeout: 60s
+          flags: --args=server
           secrets: |
             OUTREACH_CLIENT_ID=outreach-client-id:latest
             OUTREACH_CLIENT_SECRET=outreach-client-secret:latest
           env_vars: |
             FIRESTORE_DB=master
-             - run: echo "FOO=$(git status)" >> $GITHUB_ENV
+            PUBLIC_URL=${{ env.PUBLIC_URL }}
