@@ -1,6 +1,5 @@
 import axios from 'axios';
-import { Timestamp } from '@google-cloud/firestore';
-import { AccessToken, AuthorizationCode } from 'simple-oauth2';
+import { AuthorizationCode } from 'simple-oauth2';
 
 import { Token } from './token.type';
 
@@ -67,11 +66,7 @@ export const getAuthorizationURL = () => {
 };
 
 export const exchangeCodeForToken = async (code: string) => {
-    console.log({ secret: process.env.OUTREACH_CLIENT_SECRET });
-    const { token } = await client.getToken(
-        { code, redirect_uri: redirectURI },
-        { headers: { Authorization: 'abcabc' } },
-    );
+    const { token } = await client.getToken({ code, redirect_uri: redirectURI });
 
     return token as Token;
 };
