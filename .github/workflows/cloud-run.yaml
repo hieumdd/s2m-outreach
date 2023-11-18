@@ -41,7 +41,7 @@ jobs:
 
       - uses: google-github-actions/setup-gcloud@v0
 
-      - run: echo "PUBLIC_URL=$(gcloud run services describe s2m-outreach-server --format='value(status.url)')" >> $GITHUB_ENV
+      - run: echo "PUBLIC_URL=$(gcloud run services describe s2m-outreach-server --region=us-central1 --format='value(status.url)')" >> $GITHUB_ENV
 
       - uses: google-github-actions/deploy-cloudrun@v1
         with:
