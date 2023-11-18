@@ -1,5 +1,4 @@
 import express from 'express';
-import nunjucks from 'nunjucks';
 import { Command } from 'commander';
 
 import { logger } from './logging.service';
@@ -19,8 +18,6 @@ const program = new Command();
 
 program.command('server').action(() => {
     const app = express();
-    nunjucks.configure('views', { autoescape: true, express: app });
-    app.set('view engine', 'html');
 
     app.use(({ headers, path, body }, _, next) => {
         logger.info({ headers, path, body });
