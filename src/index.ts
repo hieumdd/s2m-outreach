@@ -42,7 +42,7 @@ program.command('server').action(() => {
 
     app.get('/user', (_, res) => {
         getUsers()
-            .then((users) => res.render('user.html', { users: JSON.stringify(users, null, 2) }))
+            .then((users) => res.send(`<pre>${JSON.stringify(users, null, 2)}</pre>`))
             .catch((error) => {
                 logger.error({ error });
                 res.status(500).json({ error: error });
