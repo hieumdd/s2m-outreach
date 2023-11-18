@@ -11,12 +11,11 @@ export type CreateLoadStreamOptions = {
 };
 
 export const createLoadStream = async (options: CreateLoadStreamOptions) => {
-    const dataset = client.dataset(options.dataset);
+    const dataset = client.dataset(`Outreach__${options.dataset}`);
 
     await dataset.exists().then(([exist]) => (!exist ? dataset.create() : undefined));
 
-    return client
-        .dataset(options.dataset)
+    return dataset
         .table(options.table)
         .createWriteStream({
             schema: { fields: options.schema } as TableSchema,
