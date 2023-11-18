@@ -6,10 +6,11 @@ import ndjson from 'ndjson';
 import { logger } from '../logging.service';
 import { createLoadStream } from '../bigquery.service';
 import { executeJob } from '../cloud-run.service';
-import { GetResourcesOptions, getResources } from '../outreach/resource/resource.service';
-import * as pipelines from './pipeline.const';
-import { getUser, getUsers } from '../outreach/user/user.service';
+import { Subcommand } from '../subcommand.enum';
 import { getClient } from '../outreach/auth/auth.service';
+import { GetResourcesOptions, getResources } from '../outreach/resource/resource.service';
+import { getUser, getUsers } from '../outreach/user/user.service';
+import * as pipelines from './pipeline.const';
 
 const transformValidation = (schema: Joi.Schema) => {
     return new Transform({
@@ -54,7 +55,10 @@ export const createPipelineTasks = async ({ start, end }: CreatePipelineTasksOpt
 
     return await Promise.all(
         users.map((user) => {
-            return executeJob(['--userId', user.id, '--start', start, '--end', end], Object.values(pipelines).length);
+            return executeJob(
+                [Subcommand.Execute, '--userId', user.id, '--start', start, '--end', end],
+                Object.values(pipelines).length,
+            );
         }),
     );
 };

@@ -48,7 +48,7 @@ jobs:
           service: s2m-outreach-server
           image: ${{ env.IMAGE }}
           timeout: 60s
-          flags: --args=server
+          flags: --args=serve
           secrets: |
             OUTREACH_CLIENT_ID=outreach-client-id:latest
             OUTREACH_CLIENT_SECRET=outreach-client-secret:latest

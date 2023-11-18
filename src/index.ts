@@ -3,6 +3,7 @@ import bodyParser from 'body-parser';
 import { Command } from 'commander';
 
 import { logger } from './logging.service';
+import { Subcommand } from './subcommand.enum';
 import { getAuthorizationURL } from './outreach/auth/auth.service';
 import { createUser, getUsers } from './outreach/user/user.service';
 import { CreatePipelineTasksSchema, RunPipelineSchema } from './pipeline/pipeline.request.dto';
@@ -17,9 +18,9 @@ import { createPipelineTasks, runPipeline } from './pipeline/pipeline.service';
 
 const program = new Command();
 
-program.command('server').action(() => {
+program.command(Subcommand.Serve).action(() => {
     const app = express();
-    
+
     app.use(bodyParser.json());
 
     app.use(({ headers, path, body }, _, next) => {
@@ -69,7 +70,7 @@ program.command('server').action(() => {
 });
 
 program
-    .command('execute')
+    .command(Subcommand.Execute)
     .requiredOption('--userId <userId>')
     .option('--start <start>')
     .option('--end <end>')
