@@ -1,4 +1,5 @@
 import express from 'express';
+import bodyParser from 'body-parser';
 import { Command } from 'commander';
 
 import { logger } from './logging.service';
@@ -18,6 +19,8 @@ const program = new Command();
 
 program.command('server').action(() => {
     const app = express();
+    
+    app.use(bodyParser.json());
 
     app.use(({ headers, path, body }, _, next) => {
         logger.info({ headers, path, body });
