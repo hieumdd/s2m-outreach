@@ -54,10 +54,7 @@ export const createPipelineTasks = async ({ start, end }: CreatePipelineTasksOpt
 
     return await Promise.all(
         users.map((user) => {
-            return executeJob(
-                ['--userId', user.id, '--start', start, '--end', end],
-                Object.values(pipelines).length,
-            );
+            return executeJob(['--userId', user.id, '--start', start, '--end', end], Object.values(pipelines).length);
         }),
     );
 };

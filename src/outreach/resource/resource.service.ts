@@ -18,11 +18,7 @@ type GetResourcesResponse = {
     links?: { next?: string };
 };
 
-export const getResources = (
-    client: AxiosInstance,
-    config: GetResourcesConfig,
-    options: GetResourcesOptions,
-) => {
+export const getResources = (client: AxiosInstance, config: GetResourcesConfig, options: GetResourcesOptions) => {
     const stream = new Readable({ objectMode: true, read: () => {} });
 
     const _get = (offset = 0) => {

@@ -18,7 +18,5 @@ type GetMeResponse = {
 };
 
 export const getMe = async (client: AxiosInstance) => {
-    return await client
-        .request<GetMeResponse>({ method: 'GET', url: '/' })
-        .then((response) => response.data);
+    return await client.request<GetMeResponse>({ method: 'GET', url: '/' }).then((response) => response.data);
 };

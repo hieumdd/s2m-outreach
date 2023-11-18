@@ -7,7 +7,7 @@ it('get-resources', (done) => {
         start: '2022-01-01',
         end: '2023-01-01',
     });
-    
+
     stream.on('data', (data) => {
         console.log({ data });
     });
