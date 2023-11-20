@@ -5,39 +5,43 @@ import ndjson from 'ndjson';
 
 import { logger } from '../logging.service';
 import { createLoadStream } from '../bigquery.service';
-import { createTasks } from '../cloud-tasks.service';
-import { GetResourcesOptions, getResources } from '../outreach/resource.service';
+import { executeJob } from '../cloud-run.service';
+import { Subcommand } from '../subcommand.enum';
+import { getClient } from '../outreach/auth/auth.service';
+import { GetResourcesOptions, getResources } from '../outreach/resource/resource.service';
+import { getUser, getUsers } from '../outreach/user/user.service';
 import * as pipelines from './pipeline.const';
 
 const transformValidation = (schema: Joi.Schema) => {
     return new Transform({
         objectMode: true,
         transform: (row: any, _, callback) => {
-            const { value, error } = schema.validate(row, {
-                stripUnknown: true,
-                abortEarly: false,
-            });
-            if (error) {
-                callback(error);
-                return;
-            }
-            callback(null, value);
+            schema
+                .validateAsync(row, { stripUnknown: true, abortEarly: false })
+                .then((value) => callback(null, value))
+                .catch((error) => callback(error));
         },
     });
 };
 
-export type RunPipelineOptions = GetResourcesOptions;
+export type RunPipelineOptions = {
+    userId: string;
+    options: GetResourcesOptions;
+};
+export const runPipeline = async ({ userId, options }: RunPipelineOptions) => {
+    const pipeline_ = Object.values(pipelines)[parseInt(process.env.CLOUD_RUN_TASK_INDEX || '0')];
 
-export const runPipeline = async (pipeline_: pipelines.Pipeline, options: RunPipelineOptions) => {
     logger.info({ action: 'start', pipeline: pipeline_.loadConfig.table });
 
-    const stream = await getResources(pipeline_.getConfig, options);
+    const user = await getUser(userId);
+    const client = getClient(user.token.access_token);
 
     return pipeline(
-        stream,
+        getResources(client, pipeline_.getConfig, options),
         transformValidation(pipeline_.schema),
         ndjson.stringify(),
-        createLoadStream({
+        await createLoadStream({
+            dataset: user.dataset,
             table: `p_${pipeline_.loadConfig.table}`,
             schema: pipeline_.loadConfig.schema,
         }),
@@ -47,8 +51,14 @@ export const runPipeline = async (pipeline_: pipelines.Pipeline, options: RunPip
 export type CreatePipelineTasksOptions = GetResourcesOptions;
 
 export const createPipelineTasks = async ({ start, end }: CreatePipelineTasksOptions) => {
-    return createTasks(
-        Object.keys(pipelines).map((pipeline_) => ({ pipeline: pipeline_, start, end })),
-        (task) => task.pipeline,
+    const users = await getUsers();
+
+    return await Promise.all(
+        users.map((user) => {
+            return executeJob(
+                [Subcommand.Execute, '--userId', user.id, '--start', start, '--end', end],
+                Object.values(pipelines).length,
+            );
+        }),
     );
 };

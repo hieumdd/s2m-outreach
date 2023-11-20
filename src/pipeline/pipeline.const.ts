@@ -1,7 +1,7 @@
 import JoiDefault, { NumberSchema, Schema } from 'joi';
 import dayjs from 'dayjs';
 
-import { GetResourcesConfig } from '../outreach/resource.service';
+import { GetResourcesConfig } from '../outreach/resource/resource.service';
 import { CreateLoadStreamOptions } from '../bigquery.service';
 
 const Joi = JoiDefault.defaults((schema) => {
@@ -23,7 +23,7 @@ const timestampSchema = Joi.string().custom((value) => {
 export type Pipeline = {
     getConfig: GetResourcesConfig;
     schema: Schema;
-    loadConfig: CreateLoadStreamOptions;
+    loadConfig: Omit<CreateLoadStreamOptions, 'dataset'>;
 };
 
 export const Account: Pipeline = {

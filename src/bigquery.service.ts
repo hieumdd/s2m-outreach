@@ -4,16 +4,18 @@ import { logger } from './logging.service';
 
 const client = new BigQuery();
 
-const DATASET = 'Outreach';
-
 export type CreateLoadStreamOptions = {
+    dataset: string;
     table: string;
     schema: Record<string, any>[];
 };
 
-export const createLoadStream = (options: CreateLoadStreamOptions) => {
-    return client
-        .dataset(DATASET)
+export const createLoadStream = async (options: CreateLoadStreamOptions) => {
+    const dataset = client.dataset(`Outreach__${options.dataset}`);
+
+    await dataset.exists().then(([exist]) => (!exist ? dataset.create() : undefined));
+
+    return dataset
         .table(options.table)
         .createWriteStream({
             schema: { fields: options.schema } as TableSchema,

@@ -1,8 +1,7 @@
 import { Readable } from 'node:stream';
-import axios from 'axios';
+import axios, { AxiosInstance } from 'axios';
 
-import { getClient } from './auth.service';
-import { logger } from '../logging.service';
+import { logger } from '../../logging.service';
 
 export type GetResourcesConfig = {
     url: string;
@@ -19,9 +18,7 @@ type GetResourcesResponse = {
     links?: { next?: string };
 };
 
-export const getResources = async (config: GetResourcesConfig, options: GetResourcesOptions) => {
-    const client = await getClient();
-
+export const getResources = (client: AxiosInstance, config: GetResourcesConfig, options: GetResourcesOptions) => {
     const stream = new Readable({ objectMode: true, read: () => {} });
 
     const _get = (offset = 0) => {

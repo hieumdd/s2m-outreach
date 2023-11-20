@@ -1,13 +1,9 @@
-import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc';
 import Joi from 'joi';
 
-import * as pipelines from './pipeline.const';
-import { RunPipelineOptions } from './pipeline.service';
+import { dayjs } from '../dayjs';
+import { CreatePipelineTasksOptions, RunPipelineOptions } from './pipeline.service';
 
-dayjs.extend(utc);
-
-export const RunPipelinesSchema = Joi.object<RunPipelineOptions>({
+export const CreatePipelineTasksSchema = Joi.object<CreatePipelineTasksOptions>({
     start: Joi.string()
         .optional()
         .empty(null)
@@ -16,8 +12,7 @@ export const RunPipelinesSchema = Joi.object<RunPipelineOptions>({
     end: Joi.string().optional().empty(null).allow(null).default(dayjs.utc().format('YYYY-MM-DD')),
 });
 
-export const RunPipelineSchema = RunPipelinesSchema.append<
-    RunPipelineOptions & { pipeline: keyof typeof pipelines }
->({
-    pipeline: Joi.string().valid(...Object.keys(pipelines)),
+export const RunPipelineSchema = Joi.object<RunPipelineOptions>({
+    userId: Joi.string().required(),
+    options: CreatePipelineTasksSchema,
 });

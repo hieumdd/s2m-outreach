@@ -182,5 +182,5 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-charge-bee-518eff0a8ac7.json
-.github
+service-account.json
+*.pem
