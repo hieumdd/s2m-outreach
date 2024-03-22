@@ -809,6 +809,14 @@ export const Prospect: Pipeline = {
             websiteUrl2: Joi.string(),
             websiteUrl3: Joi.string(),
         }),
+        relationships: Joi.object({
+            owner: Joi.object({
+                data: Joi.object({
+                    type: Joi.string(),
+                    id: Joi.number().integer(),
+                }),
+            }),
+        }),
     }),
     loadConfig: {
         table: 'Prospect',
@@ -1040,6 +1048,26 @@ export const Prospect: Pipeline = {
                     { name: 'websiteUrl1', type: 'STRING' },
                     { name: 'websiteUrl2', type: 'STRING' },
                     { name: 'websiteUrl3', type: 'STRING' },
+                ],
+            },
+            {
+                name: 'relationships',
+                type: 'RECORD',
+                fields: [
+                    {
+                        name: 'owner',
+                        type: 'RECORD',
+                        fields: [
+                            {
+                                name: 'data',
+                                type: 'RECORD',
+                                fields: [
+                                    { name: 'type', type: 'STRING' },
+                                    { name: 'id', type: 'NUMERIC' },
+                                ],
+                            },
+                        ],
+                    },
                 ],
             },
         ],
