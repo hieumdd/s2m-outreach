@@ -205,6 +205,14 @@ export const Account: Pipeline = {
             updatedAt: timestampSchema,
             websiteUrl: Joi.string(),
         }),
+        relationships: Joi.object({
+            owner: Joi.object({
+                data: Joi.object({
+                    type: Joi.string(),
+                    id: Joi.number().integer(),
+                }),
+            }),
+        }),
     }),
     loadConfig: {
         table: 'Account',
@@ -384,6 +392,26 @@ export const Account: Pipeline = {
                     { name: 'touchedAt', type: 'TIMESTAMP' },
                     { name: 'updatedAt', type: 'TIMESTAMP' },
                     { name: 'websiteUrl', type: 'STRING' },
+                ],
+            },
+            {
+                name: 'relationships',
+                type: 'RECORD',
+                fields: [
+                    {
+                        name: 'owner',
+                        type: 'RECORD',
+                        fields: [
+                            {
+                                name: 'data',
+                                type: 'RECORD',
+                                fields: [
+                                    { name: 'type', type: 'STRING' },
+                                    { name: 'id', type: 'NUMERIC' },
+                                ],
+                            },
+                        ],
+                    },
                 ],
             },
         ],
